@@ -16,6 +16,24 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 
+class Cloud(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Cloud, self).__init__()
+        self.surf = pygame.image.load("cloud.png").convert()
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
+        self.rect = self.surf.get_rect(
+            center=(
+                random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
+                random.randint(0, SCREEN_HEIGHT)
+            )
+        )
+
+    def update(self, *args, **kwargs):
+        self.rect.move_ip(-5, 0)
+        if self.rect.right < 0:
+            self.kill()
+
+
 class Enemy(pygame.sprite.Sprite):
 
     def __init__(self):
@@ -47,16 +65,16 @@ class Player(pygame.sprite.Sprite):
     def update(self, pressed_keys):
 
         if pressed_keys[K_UP]:
-            self.rect.move_ip(0, -5)
+            self.rect.move_ip(0, -10)
 
         if pressed_keys[K_DOWN]:
-            self.rect.move_ip(0, 5)
+            self.rect.move_ip(0, 10)
 
         if pressed_keys[K_LEFT]:
-            self.rect.move_ip(-5, 0)
+            self.rect.move_ip(-10, 0)
 
         if pressed_keys[K_RIGHT]:
-            self.rect.move_ip(5, 0)
+            self.rect.move_ip(10, 0)
 
         if self.rect.left < 0:
             self.rect.left = 0
@@ -76,10 +94,13 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 ADDENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(ADDENEMY, 250)
+ADDCLOUD = pygame.USEREVENT + 2
+pygame.time.set_timer(ADDCLOUD, 1000)
 # screen.fill((255, 255, 255))
 # pygame.display.flip()
 player = Player()
 enemies = pygame.sprite.Group()
+clouds = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 clock = pygame.time.Clock()
@@ -97,14 +118,22 @@ while running:
             new_enemy = Enemy()
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)
-        # Get all the keys currently pressed
+
+
+        elif event.type == ADDCLOUD:
+            new_cloud = Cloud()
+            clouds.add(new_cloud)
+            all_sprites.add(new_cloud)
+
+    # Get all the keys currently pressed
 
     pressed_keys = pygame.key.get_pressed()
     player.update(pressed_keys)
     enemies.update()
+    clouds.update()
     # screen.fill((255, 255, 255))
     # surf = pygame.Surface((50, 50))
-    screen.fill((0, 0, 0))
+    screen.fill((135, 206, 250))
 
     for entity in all_sprites:
         screen.blit(entity.surf, entity.rect)
